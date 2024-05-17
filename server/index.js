@@ -9,6 +9,11 @@ require("dotenv").config();
 app.use(express.json());
 app.use(cors());
 
+app.get("/", (req, res) =>{
+    res.send("Well come Our Chat App API..");
+});
+
+
 const port = process.env.PORT || 5000;
 const uri = process.env.ATLAS_URI;
 const username = process.env.DB_USERNAME;
