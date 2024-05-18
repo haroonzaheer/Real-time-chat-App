@@ -2,6 +2,7 @@ const userModel = require("../Models/userModel");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const { param } = require("../Routes/userRoute");
 
 const createToken = (_id) => {
     const jwtkey= process.env.jwt_Key_Secret;
@@ -32,8 +33,55 @@ const registeruser = async(req, res) => {
     const token = createToken(user._id);
     res.status(200).json({_id: user._id, name, email, token});
     }catch(error){
-    res.status(500);
-    json(error);
+        console.log(error);
+    res.status(500).json(error);
 }
 };
-module.exports = { registeruser };
+
+const loginuser = async(req, res) => {
+
+        const {email, password} = req.body;
+        try{
+                let user = await userModel.findOne({email});
+                if(!user) return res.status(400).json("Invalid Username & password!!");
+
+                const isValidPassword = await bcrypt.compare(password, user.password);
+
+                if(!isValidPassword) return res.status(400).json("Invalid username & Password!!");
+
+                const token = createToken(user._id);
+                res.status(200).json({_id: user.name, email, token});
+        }
+        catch(error)
+        {
+                console.log(error);
+                res.status(500).json(error);
+        }
+};
+
+const findUser = async (req, res) => {
+        const userId = req.params.userId;
+
+        try{
+        const user = await userModel.findById(userId);
+    
+        res.status(200).json(user);
+        }
+        catch(error){
+            console.log(error);
+            req.status(500).json(error);
+        }
+    };
+
+    const getusers = async (req, res) =>{
+        try{
+            const users = await userModel.find()
+            res.status(200).json(users);
+
+        }
+        catch(error)
+        {
+            console.log(error);
+        res.status(500).json(error);        }
+    }
+module.exports = { registeruser, loginuser, findUser, getusers };
